@@ -26,6 +26,8 @@ Dependencies
 ------------
 There are dependency variables available and written into all the scripts. If a dependency isn't installed, the script will stop running and message sent the log, found in the log directory indicated in dpdpconfig file. 
 
+These scripts also depend on the dericed/mediamicroservices repository, please install that before use.
+
 Individual scripts
 ------------
 ### verifySIPcompliance.py
