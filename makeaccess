@@ -77,22 +77,22 @@ while [ "${*}" != "" ] ; do
     # encoding options
     inputoptions+=(-vsync 0 -nostdin)
     if [[ "${VIDEOSTREAMCOUNT}" > 0 ]] ; then
-    middleoptions+=(-movflags faststart)
-    middleoptions+=(-pix_fmt yuv420p)
-    middleoptions+=(-c:v libx264)
-    middleoptions+=(-b:v 750k)
-    if  [ "${height}" -eq "486" -a "${width}" -eq "720" ] ; then
-        middleoptions+=(-vf "crop=720:480:0:4,yadif,scale=640:480,setsar=1/1,setdar=4/3")
-    elif  [ "${height}" -eq "512" -a "${width}" -eq "720" ] ;then
-        middleoptions+=(-vf "crop=720:480:0:32,yadif,scale=640:480,setsar=1/1,setdar=4/3")
-    else
-        middleoptions+=(-vf "yadif,scale=640:480,setsar=1/1,setdar=4/3")
-    fi
+        middleoptions+=(-movflags faststart)
+        middleoptions+=(-pix_fmt yuv420p)
+        middleoptions+=(-c:v libx264)
+        middleoptions+=(-b:v 750k)
+        if  [ "${height}" -eq "486" -a "${width}" -eq "720" ] ; then
+            middleoptions+=(-vf "crop=720:480:0:4,yadif,scale=640:480,setsar=1/1,setdar=4/3")
+        elif  [ "${height}" -eq "512" -a "${width}" -eq "720" ] ;then
+            middleoptions+=(-vf "crop=720:480:0:32,yadif,scale=640:480,setsar=1/1,setdar=4/3")
+        else
+            middleoptions+=(-vf "yadif,scale=640:480,setsar=1/1,setdar=4/3")
+        fi
     fi
     if [[ "${AUDIOSTREAMCOUNT}" > 0 ]] ; then
-    middleoptions+=(-c:a libfaac)
-    middleoptions+=(-ac 2)
-    middleoptions+=(-b:a 128k)
+        middleoptions+=(-c:a libfaac)
+        middleoptions+=(-ac 2)
+        middleoptions+=(-b:a 128k)
     fi
     middleoptions+=(-f mp4)
 
