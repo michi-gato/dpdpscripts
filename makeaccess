@@ -66,6 +66,9 @@ while [ "${*}" != "" ] ; do
     # get information on the input
     get_height "${sourcefile}"
     get_width "${sourcefile}"
+    get_dar "${sourcefile}"
+    get_videostreamcount "${sourcefile}"
+    get_audiostreamcount "${sourcefile}"
 
     # clear local arrays
     unset inputoptions
@@ -73,6 +76,7 @@ while [ "${*}" != "" ] ; do
 
     # encoding options
     inputoptions+=(-vsync 0 -nostdin)
+    if [[ "${VIDEOSTREAMCOUNT}" > 0 ]] ; then
     middleoptions+=(-movflags faststart)
     middleoptions+=(-pix_fmt yuv420p)
     middleoptions+=(-c:v libx264)
@@ -84,9 +88,12 @@ while [ "${*}" != "" ] ; do
     else
         middleoptions+=(-vf "yadif,scale=640:480,setsar=1/1,setdar=4/3")
     fi
+    fi
+    if [[ "${AUDIOSTREAMCOUNT}" > 0 ]] ; then
     middleoptions+=(-c:a libfaac)
     middleoptions+=(-ac 2)
     middleoptions+=(-b:a 128k)
+    fi
     middleoptions+=(-f mp4)
 
     # set in and out times if used
