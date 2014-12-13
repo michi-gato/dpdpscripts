@@ -81,7 +81,9 @@ while [ "${*}" != "" ] ; do
         middleoptions+=(-pix_fmt yuv420p)
         middleoptions+=(-c:v libx264)
         middleoptions+=(-b:v 750k)
-        if  [ "${height}" -eq "486" -a "${width}" -eq "720" ] ; then
+        if [ $(echo "scale=3 ; $darratio > (3/2)" | bc -l) = 1 ] ; then
+            middleoptions+=(-vf "yadif,scale=854:480,setsar=1/1,setdar=16/9")
+        elif  [ "${height}" -eq "486" -a "${width}" -eq "720" ] ; then
             middleoptions+=(-vf "crop=720:480:0:4,yadif,scale=640:480,setsar=1/1,setdar=4/3")
         elif  [ "${height}" -eq "512" -a "${width}" -eq "720" ] ;then
             middleoptions+=(-vf "crop=720:480:0:32,yadif,scale=640:480,setsar=1/1,setdar=4/3")
