@@ -61,7 +61,7 @@ while [ "${*}" != "" ] ; do
     # set up output
     _log -b
     OUTPUT="${OUTPUTDIR}/${MEDIAID%.*}.mp4"
-    [ -s "${OUTPUT}" ] && { report -wt "WARNING ${OUTPUT} already exists, skipping transcode" ; shift ; continue ;};
+    [ -s "${OUTPUT}" ] && { _report -wt "WARNING ${OUTPUT} already exists, skipping transcode" ; shift ; continue ;};
     _run mkdir -p "${OUTPUTDIR}"
 
     # get information on the input
@@ -105,7 +105,7 @@ while [ "${*}" != "" ] ; do
        intime=$(_readingestlog "intime")
        outtime=$(_readingestlog "outtime")
        if [[ "${INTIME}" ]] ; then
-           report -dt "ATTENTION: Transcoding will use intime (${INTIME}) during transcoding."
+           _report -dt "ATTENTION: Transcoding will use intime (${INTIME}) during transcoding."
            START_TIME=$(ffprobe "${SOURCEFILE}" -show_entries format=START_TIME -of compact | cut -d= -f2)
            INTIME_ADJ=$(echo "$INTIME - $START_TIME" | bc)
            if [[ "${INTIME_ADJ:0:1}" = "." ]] ; then
@@ -114,7 +114,7 @@ while [ "${*}" != "" ] ; do
            MIDDLEOPTIONS+=(-ss "${INTIME_ADJ}")
        fi
        if [[ "${OUTTIME}" ]] ; then
-           report -dt "ATTENTION: Transcoding will use outtime (${OUTTIME}) during transcoding."
+           _report -dt "ATTENTION: Transcoding will use outtime (${OUTTIME}) during transcoding."
            MIDDLEOPTIONS+=(-to "${OUTTIME}")
        fi
     fi
