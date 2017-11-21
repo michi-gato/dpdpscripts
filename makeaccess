@@ -64,11 +64,11 @@ while [ "${*}" != "" ] ; do
     _run mkdir -p "${outputdir}"
 
     # get information on the input
-    get_height "${sourcefile}"
-    get_width "${sourcefile}"
-    get_dar "${sourcefile}"
-    get_videostreamcount "${sourcefile}"
-    get_audiostreamcount "${sourcefile}"
+    _get_height "${sourcefile}"
+    _get_width "${sourcefile}"
+    _get_dar "${sourcefile}"
+    _get_videostreamcount "${sourcefile}"
+    _get_audiostreamcount "${sourcefile}"
 
     # clear local arrays
     unset inputoptions
@@ -118,7 +118,7 @@ while [ "${*}" != "" ] ; do
        fi
     fi
 
-    get_audio_mapping "${sourcefile}"
+    _get_audio_mapping "${sourcefile}"
     middleoptions+=(${audiomapping_ffmpeg[@]})
 
     _prep_ffmpeg_log
