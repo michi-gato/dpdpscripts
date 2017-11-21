@@ -123,12 +123,7 @@ while [ "${*}" != "" ] ; do
     MIDDLEOPTIONS+=(${AUDIOMAPPING_FFMPEG[@]})
 
     _prep_ffmpeg_log
-    if [ "${CONCATSOURCE}" != "" ] ; then
-        ffmpeginput="${CONCATSOURCE}"
-    else
-        ffmpeginput="${SOURCEFILE}"
-    fi
-    _run_critical ffmpeg ${INPUTOPTIONS[@]} -i "${ffmpeginput}" ${MIDDLEOPTIONS[@]} "${OUTPUT}"
+    _run_critical ffmpeg ${INPUTOPTIONS[@]} "${FFMPEGINPUT[@]}" ${MIDDLEOPTIONS[@]} "${OUTPUT}"
     echo
     _summarize_make
     _deliver_output
