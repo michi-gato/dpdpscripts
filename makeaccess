@@ -54,6 +54,7 @@ while [ "${*}" != "" ] ; do
         OUTPUTDIR="${OUTPUTDIR_FORCED}"
         LOGDIR="${OUTPUTDIR}/logs"
     fi
+    _unset_variables
     _find_input "${INPUT}"
     MEDIAID=$(basename "${INPUT}" | cut -d. -f1)
 
