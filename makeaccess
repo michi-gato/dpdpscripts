@@ -1,17 +1,17 @@
 #!/bin/bash
 # makeyoutube, makes a file appropriate for uploading to youtube
 # 1.1: use 4/3dar 1/1sar
-version="1.1"
-scriptdir=$(dirname $(which "$0"))
-. "$scriptdir/mmfunctions" || { echo "Missing '$scriptdir/mmfunctions'. Exiting." ; exit 1 ;};
-dependencies=(ffmpeg)
+VERSION="1.1"
+SCRIPTDIR=$(dirname $(which "$0"))
+. "$SCRIPTDIR/mmfunctions" || { echo "Missing '$SCRIPTDIR/mmfunctions'. Exiting." ; exit 1 ;};
+DEPENDENCIES=(ffmpeg)
 _initialize_make
 
 usage(){
     echo
-    echo "$(basename ${0}) ${version}"
+    echo "$(basename ${0}) ${VERSION}"
     echo "This application will create a high quality h264 file from a video file or package input with the following options."
-    echo "Dependencies: ${dependencies[@]}"
+    echo "Dependencies: ${DEPENDENCIES[@]}"
     echo "Usage: $(basename $0) [ -d /path/to/deliver/to/ ] fileorpackage1 [ fileorpackage2 ...]"
     echo "  -d directory ( directory to deliver the resulting file to )"
     echo "  -o directory ( directory to write the resulting file to )"
@@ -27,8 +27,8 @@ usage(){
 # command-line options to set mediaid and original variables
 OPTIND=1
 while getopts ":o:d:e:E:nh" opt ; do
-    case "${opt}" in
-        o) outputdir_forced="$OPTARG" && _check_outputdir_forced ;;
+    case "${OPT}" in
+        o) OUTPUTDIR_FORCED="$OPTARG" && _check_outputdir_forced ;;
         d) deliverdir="$OPTARG" && check_deliverdir ;;
         e) emailaddress_delivery="$OPTARG" ;;
         E) emailaddress_outcome="$OPTARG" ;;
@@ -40,94 +40,90 @@ while getopts ":o:d:e:E:nh" opt ; do
 done
 shift $(( ${OPTIND} - 1 ))
 
-[ "${emailaddress_outcome}" ] && check_emailaddress "${emailaddress_outcome}"
-[ "${emailaddress_delivery}" ] &&  check_emailaddress "${emailaddress_delivery}"
+[ "${EMAILADDRESS_OUTCOME}" ] && check_emailaddress "${EMAILADDRESS_OUTCOME}"
+[ "${EMAILADDRESS_DELIVERY}" ] &&  check_emailaddress "${EMAILADDRESS_DELIVERY}"
 
 while [ "${*}" != "" ] ; do
     # get context about the input
-    input="$1"
-    if [ -z "${outputdir_forced}" ] ; then
-        [ -d "${input}" ] && { outputdir="${input}/objects/access" && logdir="${input}/metadata/submissionDocumentation/logs" ;};
-        [ -f "${input}" ] && { outputdir=$(dirname "${input}")"/access" && logdir="$(dirname "${input}")/access/logs" ;};
-        [ ! "${outputdir}" ] && { outputdir="${input}/objects/access" && logdir="${input}/metadata/submissionDocumentation/logs" ;};
+    INPUT="$1"
+    if [ -z "${OUTPUTDIR_FORCED}" ] ; then
+        [ -d "${INPUT}" ] && { OUTPUTDIR="${INPUT}/objects/access" && LOGDIR="${INPUT}/metadata/submissionDocumentation/logs" ;};
+        [ -f "${INPUT}" ] && { OUTPUTDIR=$(dirname "${INPUT}")"/access" && LOGDIR="$(dirname "${INPUT}")/access/logs" ;};
+        [ ! "${OUTPUTDIR}" ] && { OUTPUTDIR="${INPUT}/objects/access" && LOGDIR="${INPUT}/metadata/submissionDocumentation/logs" ;};
     else
-        outputdir="${outputdir_forced}"
-        logdir="${outputdir}/logs"
+        OUTPUTDIR="${OUTPUTDIR_FORCED}"
+        LOGDIR="${OUTPUTDIR}/logs"
     fi
-    _find_input "${input}"
-    mediaid=$(basename "${input}" | cut -d. -f1)
+    _unset_variables
+    _find_input "${INPUT}"
+    MEDIAID=$(basename "${INPUT}" | cut -d. -f1)
 
     # set up output
     _log -b
-    output="${outputdir}/${mediaid%.*}.mp4"
-    [ -s "${output}" ] && { report -wt "WARNING ${output} already exists, skipping transcode" ; shift ; continue ;};
-    _run mkdir -p "${outputdir}"
+    OUTPUT="${OUTPUTDIR}/${MEDIAID%.*}.mp4"
+    [ -s "${OUTPUT}" ] && { _report -wt "WARNING ${OUTPUT} already exists, skipping transcode" ; shift ; continue ;};
+    _run mkdir -p "${OUTPUTDIR}"
 
     # get information on the input
-    get_height "${sourcefile}"
-    get_width "${sourcefile}"
-    get_dar "${sourcefile}"
-    get_videostreamcount "${sourcefile}"
-    get_audiostreamcount "${sourcefile}"
+    _get_height "${SOURCEFILE}"
+    _get_width "${SOURCEFILE}"
+    _get_dar "${SOURCEFILE}"
+    _get_videostreamcount "${SOURCEFILE}"
+    _get_audiostreamcount "${SOURCEFILE}"
 
     # clear local arrays
-    unset inputoptions
-    unset middleoptions
+    unset INPUTOPTIONS
+    unset MIDDLEOPTIONS
 
     # encoding options
-    inputoptions+=(-vsync 0 -nostdin)
+    INPUTOPTIONS+=(-vsync 0 -nostdin)
     if [[ "${VIDEOSTREAMCOUNT}" > 0 ]] ; then
-        middleoptions+=(-movflags faststart)
-        middleoptions+=(-pix_fmt yuv420p)
-        middleoptions+=(-c:v libx264)
-        middleoptions+=(-b:v 750k)
-        if [ $(echo "scale=3 ; $dar > (3/2)" | bc -l) = 1 ] ; then
-            middleoptions+=(-vf "yadif,scale=854:480,setsar=1/1,setdar=16/9")
-        elif  [ "${height}" -eq "486" -a "${width}" -eq "720" ] ; then
-            middleoptions+=(-vf "crop=720:480:0:4,yadif,scale=640:480,setsar=1/1,setdar=4/3")
-        elif  [ "${height}" -eq "512" -a "${width}" -eq "720" ] ;then
-            middleoptions+=(-vf "crop=720:480:0:32,yadif,scale=640:480,setsar=1/1,setdar=4/3")
+        MIDDLEOPTIONS+=(-movflags faststart)
+        MIDDLEOPTIONS+=(-pix_fmt yuv420p)
+        MIDDLEOPTIONS+=(-c:v libx264)
+        MIDDLEOPTIONS+=(-b:v 750k)
+        if [ $(echo "scale=3 ; $DAR > (3/2)" | bc -l) = 1 ] ; then
+            MIDDLEOPTIONS+=(-vf "yadif,scale=854:480,setsar=1/1,setdar=16/9")
+        elif  [ "${HEIGHT}" -eq "486" -a "${WIDTH}" -eq "720" ] ; then
+            MIDDLEOPTIONS+=(-vf "crop=720:480:0:4,yadif,scale=640:480,setsar=1/1,setdar=4/3")
+        elif  [ "${HEIGHT}" -eq "512" -a "${WIDTH}" -eq "720" ] ;then
+            MIDDLEOPTIONS+=(-vf "crop=720:480:0:32,yadif,scale=640:480,setsar=1/1,setdar=4/3")
         else
-            middleoptions+=(-vf "yadif,scale=640:480,setsar=1/1,setdar=4/3")
+            MIDDLEOPTIONS+=(-vf "yadif,scale=640:480,setsar=1/1,setdar=4/3")
         fi
     fi
     if [[ "${AUDIOSTREAMCOUNT}" > 0 ]] ; then
-        middleoptions+=(-c:a aac -strict -2)
-        middleoptions+=(-ac 2)
-        middleoptions+=(-b:a 128k)
+        MIDDLEOPTIONS+=(-c:a aac -strict -2)
+        MIDDLEOPTIONS+=(-ac 2)
+        MIDDLEOPTIONS+=(-b:a 128k)
     fi
-    middleoptions+=(-f mp4)
+    MIDDLEOPTIONS+=(-f mp4)
 
     # set in and out times if used
-    ingestlog="${logdir}/capture.log"
-    if [ -f "${ingestlog}" -a "${isobject}" = "Y" ] ; then
+    INGESTLOG="${LOGDIR}/capture.log"
+    if [ -f "${INGESTLOG}" -a "${ISOBJECT}" = "Y" ] ; then
        intime=$(_readingestlog "intime")
        outtime=$(_readingestlog "outtime")
-       if [[ "${intime}" ]] ; then
-           report -dt "ATTENTION: Transcoding will use intime (${intime}) during transcoding."
-           start_time=$(ffprobe "${sourcefile}" -show_entries format=start_time -of compact | cut -d= -f2)
-           intime_adj=$(echo "$intime - $start_time" | bc)
-           if [[ "${intime_adj:0:1}" = "." ]] ; then
-               intime_adj="0${intime_adj}"
+       if [[ "${INTIME}" ]] ; then
+           _report -dt "ATTENTION: Transcoding will use intime (${INTIME}) during transcoding."
+           START_TIME=$(ffprobe "${SOURCEFILE}" -show_entries format=START_TIME -of compact | cut -d= -f2)
+           INTIME_ADJ=$(echo "$INTIME - $START_TIME" | bc)
+           if [[ "${INTIME_ADJ:0:1}" = "." ]] ; then
+               INTIME_ADJ="0${INTIME_ADJ}"
            fi
-           middleoptions+=(-ss "${intime_adj}")
+           MIDDLEOPTIONS+=(-ss "${INTIME_ADJ}")
        fi
-       if [[ "${outtime}" ]] ; then
-           report -dt "ATTENTION: Transcoding will use outtime (${outtime}) during transcoding."
-           middleoptions+=(-to "${outtime}")
+       if [[ "${OUTTIME}" ]] ; then
+           _report -dt "ATTENTION: Transcoding will use outtime (${OUTTIME}) during transcoding."
+           MIDDLEOPTIONS+=(-to "${OUTTIME}")
        fi
     fi
 
-    get_audio_mapping "${sourcefile}"
-    middleoptions+=(${audiomapping_ffmpeg[@]})
+    _get_audio_mapping "${SOURCEFILE}"
+    MIDDLEOPTIONS+=(${AUDIOMAPPING_FFMPEG[@]})
 
     _prep_ffmpeg_log
-    if [ "${concatsource}" != "" ] ; then
-        ffmpeginput="${concatsource}"
-    else
-        ffmpeginput="${sourcefile}"
-    fi
-    _run_critical ffmpeg ${inputoptions[@]} -i "${ffmpeginput}" ${middleoptions[@]} "${output}"
+    _run_critical ffmpeg ${INPUTOPTIONS[@]} "${FFMPEGINPUT[@]}" ${MIDDLEOPTIONS[@]} "${OUTPUT}"
     echo
     _summarize_make
     _deliver_output
