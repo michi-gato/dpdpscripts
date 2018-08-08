@@ -7,6 +7,12 @@ Dance Heritage Coalition Dance Preservation and Digitization Project scripts. Wr
 
 Installation
 ------------
+Install via homebrew: 
+```
+brew tap danceheritagecoalition/dhc
+brew install dpdpscripts
+```
+
 Tested on Ubuntu 12.04 LTS server software: put contents of dpdp_scripts into /usr/local/bin/
 Edit in vi the dpdp.conf file so that you can change where the logs go - use sudo to do this, or let your administrator use sudo to do this. 
 
